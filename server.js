@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import axios from "axios";
 
 const app = express();
@@ -8,11 +7,10 @@ const API_URL = "http://localhost:4000";
 
 app.use(express.static("public"));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Route to render the main page
-app.get("/:id", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/posts`);
     console.log(response);
@@ -22,7 +20,7 @@ app.get("/:id", async (req, res) => {
   }
 });
 
-app.get("/:id", async (req, res) => {
+app.get("/posts/:id", async (req, res) => {
   try {
     const idNum = req.params.id;
     const response = await axios.get(`${API_URL}/posts/${idNum}`);
@@ -34,11 +32,12 @@ app.get("/:id", async (req, res) => {
 })
 
 // Route to render the edit page
-app.get("/new", (req, res) => {
-  res.render("modify.ejs", { heading: "New Post", submit: "Create Post" });
+app.get("/new-post", (req, res) => {
+  res.render("modify.ejs", { heading: "New Post", submit:
+  "Create Post" });
 });
 
-app.get("/edit/:id", async (req, res) => {
+app.get("/api/posts/edit-post/:id", async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/posts/${req.params.id}`);
     console.log(response.data);
@@ -65,12 +64,8 @@ app.post("/api/posts", async (req, res) => {
 
 // Partially update a post
 app.post("/api/posts/:id", async (req, res) => {
-  console.log("called");
   try {
-    const response = await axios.patch(
-      `${API_URL}/posts/${req.params.id}`,
-      req.body
-    );
+    const response = await axios.patch(`${API_URL}/posts/${req.params.id}`, req.body);
     console.log(response.data);
     res.redirect("/");
   } catch (error) {
@@ -79,7 +74,7 @@ app.post("/api/posts/:id", async (req, res) => {
 });
 
 // Delete a post
-app.get("/api/posts/delete/:id", async (req, res) => {
+app.get("/api/posts/delete-post/:id", async (req, res) => {
   try {
     await axios.delete(`${API_URL}/posts/${req.params.id}`);
     res.redirect("/");

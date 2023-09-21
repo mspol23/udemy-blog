@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 
 const app = express();
 const port = 4000;
@@ -35,8 +34,8 @@ const posts = [
 let lastId = 3;
 
 // Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
 
 //Write your code here//
 
@@ -48,11 +47,24 @@ app.get("/posts", (req, res) => {
 //CHALLENGE 2: GET a specific post by id
 app.get("/posts/:id", (req, res) => {
     const idNum = Number(req.params.id);
-    const postIndex = posts.findIndex( post => post.id === idNum);
-    res.json(posts[postIndex]);
+    const postById = posts.filter( post => post.id === idNum);
+    // console.log(postById)
+    res.json(postById);
 });
 
 //CHALLENGE 3: POST a new post
+app.post("/posts", (req, res) => {
+  console.log(req.body);
+  const newObj = {};
+  for (let prop in posts[0]) {
+   newObj[prop] = req.body[prop]
+  };
+  newObj.id = lastId + 1;
+  newObj.date = toString(new Date());
+  console.log(newObj);
+  posts.unshift(newObj);
+  res.json(posts);
+})
 
 //CHALLENGE 4: PATCH a post when you just want to update one parameter
 
