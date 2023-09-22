@@ -40,35 +40,55 @@ app.use(express.json())
 //Write your code here//
 
 //CHALLENGE 1: GET All posts
-app.get("/posts", (req, res) => {
+app.get("/get-posts", (req, res) => {
   res.json(posts)
 });
 
 //CHALLENGE 2: GET a specific post by id
-app.get("/posts/:id", (req, res) => {
+app.get("/get-posts/:id", (req, res) => {
     const idNum = Number(req.params.id);
     const postById = posts.filter( post => post.id === idNum);
-    // console.log(postById)
+    console.log(postById)
+    if (postById.length === 0) res.status(404);
     res.json(postById);
 });
 
 //CHALLENGE 3: POST a new post
-app.post("/posts", (req, res) => {
-  console.log(req.body);
-  const newObj = {};
-  for (let prop in posts[0]) {
-   newObj[prop] = req.body[prop]
-  };
-  newObj.id = lastId + 1;
-  newObj.date = toString(new Date());
+app.post("/new-post", (req, res) => {
+  // console.log(req.body);
+  const newObj = {
+    id: lastId + 1,
+    date: new Date().toLocaleString("pt-BR"),
+    ...req.body
+  }
   console.log(newObj);
   posts.unshift(newObj);
   res.json(posts);
 })
 
 //CHALLENGE 4: PATCH a post when you just want to update one parameter
+app.get("/edit-post/:id", (req, res) => {
+  const idNum = Number(req.params.id)
+  const selectPost = posts.find( post => post.id === idNum)
+  console.log(selectPost)
+  res.json(selectPost)
+});
+
+app.patch("/edit-post/:id", (req, res) => {
+  const idNum = Number(req.params.id)
+  const selectIndex = posts.findIndex(post => post.id === idNum);
+  posts[selectIndex] = {id: idNum, ...req.body};
+  // console.log(req.body)
+  res.sendStatus(200)
+})
 
 //CHALLENGE 5: DELETE a specific post by providing the post id.
+app.delete("/delete-post/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = posts.findIndex(post => post.id === id);
+  posts.splice(index, 1);
+  res.sendStatus(200);
+})
 
 app.listen(port, () => {
   console.log(`API is running at http://localhost:${port}`);

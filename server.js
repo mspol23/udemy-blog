@@ -9,10 +9,12 @@ app.use(express.static("public"));
 
 app.use(express.urlencoded({ extended: true }));
 
-// Route to render the main page
-app.get("/", async (req, res) => {
+// Routes to render the main page
+app.get("/", (req, res) => {res.redirect("/get-posts")});
+
+app.get("/get-posts", async (req, res) => {
   try {
-    const response = await axios.get(`${API_URL}/posts`);
+    const response = await axios.get(`${API_URL}/get-posts`);
     console.log(response);
     res.render("index.ejs", { posts: response.data });
   } catch (error) {
@@ -20,10 +22,10 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.get("/posts/:id", async (req, res) => {
+app.get("/get-posts/:id", async (req, res) => {
   try {
     const idNum = req.params.id;
-    const response = await axios.get(`${API_URL}/posts/${idNum}`);
+    const response = await axios.get(`${API_URL}/get-posts/${idNum}`);
     console.log(response)
     res.render("index.ejs", { posts: response.data })
   } catch (error) {
@@ -31,15 +33,26 @@ app.get("/posts/:id", async (req, res) => {
   }
 })
 
-// Route to render the edit page
+// Route to create new-post.
 app.get("/new-post", (req, res) => {
   res.render("modify.ejs", { heading: "New Post", submit:
   "Create Post" });
 });
 
-app.get("/api/posts/edit-post/:id", async (req, res) => {
+app.post("/new-post", async (req, res) => {
   try {
-    const response = await axios.get(`${API_URL}/posts/${req.params.id}`);
+    const response = await axios.post(`${API_URL}/new-post`, req.body);
+    console.log(response.data);
+    res.redirect("/");
+  } catch (error) {
+    res.status(500).json({ message: "Error creating post" });
+  }
+});
+
+// Route to edit new-post.
+app.get("/edit-post/:id", async (req, res) => {
+  try {
+    const response = await axios.get(`${API_URL}/edit-post/${req.params.id}`);
     console.log(response.data);
     res.render("modify.ejs", {
       heading: "Edit Post",
@@ -51,21 +64,9 @@ app.get("/api/posts/edit-post/:id", async (req, res) => {
   }
 });
 
-// Create a new post
-app.post("/api/posts", async (req, res) => {
+app.post("/edit-post/:id", async (req, res) => {
   try {
-    const response = await axios.post(`${API_URL}/posts`, req.body);
-    console.log(response.data);
-    res.redirect("/");
-  } catch (error) {
-    res.status(500).json({ message: "Error creating post" });
-  }
-});
-
-// Partially update a post
-app.post("/api/posts/:id", async (req, res) => {
-  try {
-    const response = await axios.patch(`${API_URL}/posts/${req.params.id}`, req.body);
+    const response = await axios.patch(`${API_URL}/edit-post/${req.params.id}`, req.body);
     console.log(response.data);
     res.redirect("/");
   } catch (error) {
@@ -74,9 +75,9 @@ app.post("/api/posts/:id", async (req, res) => {
 });
 
 // Delete a post
-app.get("/api/posts/delete-post/:id", async (req, res) => {
+app.get("/delete-post/:id", async (req, res) => {
   try {
-    await axios.delete(`${API_URL}/posts/${req.params.id}`);
+    await axios.delete(`${API_URL}/delete-post/${req.params.id}`);
     res.redirect("/");
   } catch (error) {
     res.status(500).json({ message: "Error deleting post" });
@@ -86,3 +87,7 @@ app.get("/api/posts/delete-post/:id", async (req, res) => {
 app.listen(port, () => {
   console.log(`Backend server is running on http://localhost:${port}`);
 });
+
+
+// Create a new post
+// Partially update a post
